@@ -1,4 +1,4 @@
-package com.tormenta.proxy;
+package com.tormenta.echo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

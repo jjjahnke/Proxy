@@ -1,4 +1,4 @@
-package com.tormenta.proxy;
+package com.tormenta.echo;
 
 import junit.framework.Assert;
 import org.junit.Test;
