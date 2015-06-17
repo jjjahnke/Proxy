@@ -21,7 +21,7 @@ public class ProxyClientHandler extends SimpleChannelInboundHandler<HttpObject>{
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, HttpObject msg) {
+    public void channelRead0(final ChannelHandlerContext ctx, HttpObject msg){
         System.out.println("**************************************In Channel Read");
         proxyServerChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
             @Override
