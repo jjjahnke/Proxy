@@ -74,12 +74,6 @@ public class ProxyChangeRequestHandler extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         logger.info("write");
-//        responseDecoder.writeInbound(msg);
-//        HttpObject decoded = (HttpResponse) responseDecoder.readInbound();
-//        String str = decoded.toString();
-//        logger.info(str);
-//        responseEncoder.writeOutbound(decoded);
-//        ByteBuf encoded = (ByteBuf) responseEncoder.readOutbound();
 
         writeCollector.addComponent((ByteBuf)msg);
         promise.setSuccess();
@@ -90,10 +84,16 @@ public class ProxyChangeRequestHandler extends ChannelDuplexHandler {
     @Override
     public void flush(ChannelHandlerContext ctx) throws Exception {
         logger.info("flush");
-        writeCollector.consolidate();
-        ctx.writeAndFlush(writeCollector.component(0));
 
-        //ctx.flush();
+        writeCollector.consolidate();
+        responseDecoder.writeInbound(writeCollector.component(0));
+        HttpObject decoded = (HttpResponse) responseDecoder.readInbound();
+        String str = decoded.toString();
+        logger.info(str);
+        responseEncoder.writeOutbound(decoded);
+        ByteBuf encoded = (ByteBuf) responseEncoder.readOutbound();
+
+        ctx.writeAndFlush(encoded);
     }
 
 }
