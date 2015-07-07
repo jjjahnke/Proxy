@@ -3,6 +3,10 @@ package com.tormenta.cvs;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpRequestEncoder;
 
 import java.util.logging.Logger;
 
@@ -14,6 +18,12 @@ public class ProxyFrontEndHandler extends ChannelInboundHandlerAdapter {
     private final int remotePort;
 
     private volatile Channel outboundChannel;
+
+    private static Integer count = 0;
+
+    private EmbeddedChannel encoder = new EmbeddedChannel(new HttpRequestEncoder());
+    private EmbeddedChannel decoder = new EmbeddedChannel(new HttpRequestDecoder());
+
 
     public ProxyFrontEndHandler(String remoteHost, int remotePort) {
         this.remoteHost = remoteHost;
@@ -27,10 +37,11 @@ public class ProxyFrontEndHandler extends ChannelInboundHandlerAdapter {
 
         // Start the connection attempt.
         Bootstrap b = new Bootstrap();
+        Boolean AUTO_READ = false;
         b.group(inboundChannel.eventLoop())
                 .channel(ctx.channel().getClass())
-                .handler(new ProxyBackEndHandler(inboundChannel))
-                .option(ChannelOption.AUTO_READ, false);
+                .handler(new ProxyBackEndInitializer(inboundChannel))
+                .option(ChannelOption.AUTO_READ, AUTO_READ);
         ChannelFuture f = b.connect(remoteHost, remotePort);
         outboundChannel = f.channel();
         f.addListener(new ChannelFutureListener() {
@@ -38,11 +49,11 @@ public class ProxyFrontEndHandler extends ChannelInboundHandlerAdapter {
             public void operationComplete(ChannelFuture future) {
                 if (future.isSuccess()) {
                     // connection complete start to read first data
-                    System.out.println("Succeeded in opening connection to BackEnd");
+                    logger.info("Succeeded in opening connection to BackEnd");
                     inboundChannel.read();
                 } else {
                     // Close the connection if the connection attempt has failed.
-                    System.out.println("Failed to open connection to BackEnd");
+                    logger.info("Failed to open connection to BackEnd");
                     inboundChannel.close();
                 }
             }
@@ -51,10 +62,21 @@ public class ProxyFrontEndHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) {
+        count ++;
+        final Integer curCount = new Integer(count);
+        logger.info("channelRead [" + curCount + "]");
+
+        if (msg instanceof HttpObject) {
+            logger.info("Converting to ByteBuf");
+            encoder.writeOutbound(msg);
+            msg = encoder.readOutbound();
+        }
+
         if (outboundChannel.isActive()) {
             outboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) {
+                    logger.info("readCallback [" + curCount + "]");
                     if (future.isSuccess()) {
                         // was able to flush out data, start to read the next chunk
                         ctx.channel().read();

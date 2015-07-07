@@ -19,7 +19,8 @@ public class ProxyChangeRequestHandlerInitializer extends ChannelInitializer<Soc
         ChannelPipeline pipe = ch.pipeline();
 
 //        pipe.addLast("logger", new LoggingHandler(LogLevel.INFO));
-        //pipe.addLast("codec", new HttpServerCodec());
+//        pipe.addLast(new HttpServerCodec());
+//        pipe.addLast(new HttpObjectAggregator(Integer.MAX_VALUE));
         pipe.addLast("proxy_change_handler", new ProxyChangeRequestHandler(this.remoteHost, this.remotePort));
         pipe.addLast("front_end_handler",new ProxyFrontEndHandler(remoteHost, remotePort));
 

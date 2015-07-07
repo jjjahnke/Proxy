@@ -2,8 +2,6 @@ package com.tormenta.cvs;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 
 public class ProxyFrontEndInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -18,7 +16,7 @@ public class ProxyFrontEndInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     public void initChannel(SocketChannel ch) {
         ch.pipeline().addLast(
-                new LoggingHandler(LogLevel.INFO),
+//                new LoggingHandler(LogLevel.INFO),
                 new ProxyFrontEndHandler(remoteHost, remotePort));
     }
 }
