@@ -1,5 +1,6 @@
 package com.tormenta.proxy;
 
+import com.tormenta.proxy.streaming.StreamingProxyClientHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,7 +31,7 @@ public class ProxyClientHandlerTest {
     public void testChannelRead0_default() throws Exception {
         EmbeddedChannel proxyServerChannel = new EmbeddedChannel(new TestHandler());
         TestHandler psChannel = proxyServerChannel.pipeline().get(TestHandler.class);
-        EmbeddedChannel proxyClientChannel = new EmbeddedChannel(new ProxyClientHandler(psChannel.channel));
+        EmbeddedChannel proxyClientChannel = new EmbeddedChannel(new StreamingProxyClientHandler(psChannel.channel));
 
         FullHttpResponse rs = new DefaultFullHttpResponse(
                 HttpVersion.HTTP_1_1, HttpResponseStatus.OK,

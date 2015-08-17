@@ -1,16 +1,17 @@
-package com.tormenta.proxy;
-
+package com.tormenta.proxy.http;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
-public class ProxyServerInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpProxyServerInitializer extends ChannelInitializer<SocketChannel> {
     private final String remoteHost;
     private final int remotePort;
 
-    public ProxyServerInitializer(String remoteHost, int remotePort){
+    public HttpProxyServerInitializer(String remoteHost, int remotePort){
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
     }
@@ -19,6 +20,8 @@ public class ProxyServerInitializer extends ChannelInitializer<SocketChannel> {
     public void initChannel(SocketChannel ch) {
         ch.pipeline().addLast(
                 new LoggingHandler(LogLevel.INFO),
-                new ProxyServerHandler(remoteHost, remotePort));
+                new HttpServerCodec(),
+                new HttpObjectAggregator(Integer.MAX_VALUE),
+                new HttpProxyServerHandler(remoteHost, remotePort));
     }
 }
