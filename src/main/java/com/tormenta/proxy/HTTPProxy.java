@@ -1,6 +1,7 @@
 package com.tormenta.proxy;
 
 import com.tormenta.proxy.http.HttpProxyServerInitializer;
+import com.tormenta.proxy.streaming.StreamingProxyServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -19,7 +20,8 @@ public class HTTPProxy {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpProxyServerInitializer("www.tormenta.com", 80))
+                    .childHandler(new StreamingProxyServerInitializer("deal-catalog.snc1", 80))
+                    //.childHandler(new StreamingProxyServerInitializer("www.tormenta.com", 80))
                     .childOption(ChannelOption.AUTO_READ, false)
                     .bind(8080).sync().channel().closeFuture().sync();
         } finally {

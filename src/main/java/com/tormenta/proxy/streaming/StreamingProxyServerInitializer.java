@@ -18,7 +18,7 @@ public class StreamingProxyServerInitializer extends ChannelInitializer<SocketCh
     @Override
     public void initChannel(SocketChannel ch) {
         ch.pipeline().addLast(
-                new LoggingHandler(LogLevel.INFO),
+                new LoggingHandler(LogLevel.WARN),
                 new StreamingProxyChangeRequestHandler(remoteHost, remotePort),
                 new StreamingProxyServerHandler(remoteHost, remotePort));
     }

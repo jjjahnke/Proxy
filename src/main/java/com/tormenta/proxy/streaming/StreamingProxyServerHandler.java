@@ -1,6 +1,7 @@
 package com.tormenta.proxy.streaming;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
